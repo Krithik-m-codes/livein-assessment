@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
+import Sidebar from "../components/Sidebar";
 import { MovieListProvider } from "../context/MovieListContext";
 
 const geistSans = Geist({
