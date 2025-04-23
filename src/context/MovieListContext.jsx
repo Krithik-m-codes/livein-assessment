@@ -25,17 +25,22 @@ function getInitialState() {
 }
 
 function reducer(state, action) {
-  switch (action?.type) {
-    case "ADD_TO_LIST": {
+  switch (action.type) {
+    case "INIT":
+      return { myList: action.payload };
+    case "ADD_TO_LIST":
+      // Check if movie already exists
+      if (state.myList.some((movie) => movie.id === action.payload.id)) {
+        return state;
+      }
       const updatedListAdd = [...state.myList, action.payload];
       try {
         localStorage.setItem("myMovieList", JSON.stringify(updatedListAdd));
       } catch (error) {
         console.error("Error saving to localStorage:", error);
       }
-      return { ...state, myList: updatedListAdd };
-    }
-    case "REMOVE_FROM_LIST": {
+      return { myList: updatedListAdd };
+    case "REMOVE_FROM_LIST":
       const updatedListRemove = state.myList.filter(
         (movie) => movie.id !== action.payload
       );
@@ -44,27 +49,25 @@ function reducer(state, action) {
       } catch (error) {
         console.error("Error saving to localStorage:", error);
       }
-      return { ...state, myList: updatedListRemove };
-    }
+      return { myList: updatedListRemove };
     default:
       return state;
   }
 }
 
 export function MovieListProvider({ children }) {
-  const [isMounted, setIsMounted] = useState(false);
   const [state, dispatch] = useReducer(reducer, { myList: [] });
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Initialize state after mount
   useEffect(() => {
     setIsMounted(true);
-    dispatch({ type: "INIT", payload: getInitialState().myList });
+    const initialState = getInitialState();
+    dispatch({ type: "INIT", payload: initialState.myList });
   }, []);
 
   const isInList = (movieId) =>
     state.myList.some((movie) => movie.id === movieId);
 
-  // Only render children after mounting to avoid hydration mismatches
   if (!isMounted) return null;
 
   return (
@@ -72,20 +75,6 @@ export function MovieListProvider({ children }) {
       {children}
     </MovieListContext.Provider>
   );
-}
-
-export function dispatch(state, action) {
-  switch (action?.type) {
-    case "ADD_TO_LIST":
-      return { ...state, myList: [...state.myList, action.payload] };
-    case "REMOVE_FROM_LIST":
-      return {
-        ...state,
-        myList: state.myList.filter((movie) => movie.id !== action.payload),
-      };
-    default:
-      return state;
-  }
 }
 
 export function useMovieList() {
