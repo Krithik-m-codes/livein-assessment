@@ -1,31 +1,32 @@
 "use client";
 import React from "react";
-import { useMovieList, dispatch } from "../../../context/MovieListContext";
+import { useMovieList } from "../../../context/MovieListContext";
 import { Typography } from "@mui/material";
-export default function MyList() {
-  const { myList } = useMovieList();
+import { useRouter } from "next/navigation";
 
-  const handleRemove = (event) => {
-    // Logic to remove the movie from the list
+export default function MyList() {
+  const { myList, dispatch } = useMovieList();
+
+  const handleRemove = (event, movieId) => {
     event.stopPropagation();
-    const movieId = event.currentTarget.dataset.id;
-    const isFavorite = myList.some((movie) => movie.id === movieId);
-    if (isFavorite) {
-      dispatch({ type: "REMOVE_FROM_LIST", payload: movieId });
-    } else {
-      dispatch({ type: "ADD_TO_LIST", payload: { id: movieId } });
-    }
+    dispatch({ type: "REMOVE_FROM_LIST", payload: movieId });
   };
 
   return (
     <div className="p-4">
-      <h1>My Movie List</h1>
+      <Typography variant="h4" className="mb-4">
+        My Movie List
+      </Typography>
       {myList.length === 0 ? (
-        <p>Your list is empty. Add some movies!</p>
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <Typography variant="h6" className="text-gray-500">
+            Your list is empty. Add some movies to your list!
+          </Typography>
+        </div>
       ) : (
         <div className="flex flex-col gap-4 overflow-y-auto max-h-[80vh]">
           {myList.map((movie) => (
-            <div className="max-w-2xs" key={movie.id}>
+            <div className="max-w-[50%]" key={movie.id}>
               <div className="flex-shrink-0 w-full h-24 rounded-lg shadow overflow-hidden flex flex-row gap-2">
                 <img
                   src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
@@ -34,7 +35,6 @@ export default function MyList() {
                 />
                 <div>
                   <Typography variant="h6">{movie.title}</Typography>
-
                   <Typography variant="body2">
                     ⭐{movie.vote_average.toFixed(1)}
                   </Typography>
@@ -42,8 +42,7 @@ export default function MyList() {
                 <div className="flex-grow flex items-center justify-end">
                   <button
                     className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200"
-                    onclick={handleRemove}
-                    data-id={movie.id}
+                    onClick={(e) => handleRemove(e, movie.id)} // Pass movie.id directly
                   >
                     Remove
                   </button>

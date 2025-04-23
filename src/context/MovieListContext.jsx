@@ -25,7 +25,7 @@ function getInitialState() {
 }
 
 function reducer(state, action) {
-  switch (action.type) {
+  switch (action?.type) {
     case "ADD_TO_LIST": {
       const updatedListAdd = [...state.myList, action.payload];
       try {
@@ -75,7 +75,7 @@ export function MovieListProvider({ children }) {
 }
 
 export function dispatch(state, action) {
-  switch (action.type) {
+  switch (action?.type) {
     case "ADD_TO_LIST":
       return { ...state, myList: [...state.myList, action.payload] };
     case "REMOVE_FROM_LIST":
